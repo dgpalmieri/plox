@@ -1,4 +1,4 @@
-from .token_type import TokenType
+from lox.token_type import TokenType
 # TODO import `Object` definition from lexer?
 
 

@@ -5,8 +5,13 @@ This file implements the "Lox" interface from Robert Nystrom's
 
 from pathlib import Path
 
+from lox.token import Token
+from lox.lexer import Lexer
+
 
 class Lox:
+    hadError: bool = False
+
     @staticmethod
     def main(args: list[str]) -> None:
         """
@@ -41,8 +46,8 @@ class Lox:
         if Lox.hadError:
             exit(65)
 
-        lexer = Lexer(source)
-        tokens = lexer.scan_tokens()
+        lexer: Lexer = Lexer(source)
+        tokens: list[Token] = lexer.scan_tokens()
 
         for t in tokens:
             print(t)
@@ -55,7 +60,3 @@ class Lox:
     def __report__(line: int, where: str, message: str) -> None:
         print(f"[line {line}] Error {where}: {message}")
         Lox.hadError = True
-
-    # ------- Variables -------
-
-    hadError: bool = False
