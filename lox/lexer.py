@@ -1,5 +1,10 @@
 from lox.token import Token
 from lox.token_type import TokenType
+from lox.lox import Lox
+
+
+class Object:  # TODO: real Object implementation
+    pass
 
 
 class Lexer:
@@ -45,9 +50,27 @@ class Lexer:
             self.__add_token__(TokenType.SEMICOLON)
         elif c == "*":
             self.__add_token__(TokenType.STAR)
-        else:
-            raise SyntaxError(f"Bad Token: {c}")
+        elif c == "!":
+            self.__add_token__(
+                TokenType.BANG_EQUAL if self.__match__("=") else TokenType.BANG
+            )
+        elif c == "=":
+            self.__add_token__(
+                TokenType.EQUAL_EQUAL if self.__match__("=") else TokenType.EQUAL
+            )
+        elif c == "<":
+            self.__add_token__(
+                TokenType.LESS_EQUAL if self.__match__("=") else TokenType.LESS
+            )
+        elif c == ">":
+            self.__add_token__(
+                TokenType.GREATER_EQUAL if self.__match__("=") else TokenType.GREATER
+            )
+        # elif c == '':
+        # self.__add_token__(TokenType. if self.__match__("") else TokenType.)
 
+        else:
+            Lox.error(self.__line__, f"Unexpected character: {c}")
         # elif c == '': self.__add_token__(TokenType.)
 
     def __advance__(self) -> str:
@@ -58,3 +81,12 @@ class Lexer:
     def __add_token__(self, _type: TokenType, literal: Object | None = None) -> None:
         text: str = self.__source__[self.__start__ : self.__current__]
         self.__tokens__.append(Token(_type, text, literal, self.__line__))
+
+    def __match__(self, expected: str) -> bool:
+        if self.is_at_end():
+            return False
+        if self.__source__[self.__current__] != expected:
+            return False
+
+        self.__current__ = self.__current__ + 1
+        return True
