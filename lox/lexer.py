@@ -75,7 +75,10 @@ class Lexer:
         elif c == '"':
             self.__string__()
         else:
-            Lox.error(self.__line__, f"Unexpected character: {c}")
+            if self.__is_digit__(c):
+                self.__number__()
+            else:
+                Lox.error(self.__line__, f"Unexpected character: {c}")
 
     def __advance__(self) -> str:
         if self.__current__ + 1 <= len(self.__source__):
@@ -114,3 +117,25 @@ class Lexer:
 
         value: str = self.__source__[self.__start__ + 1 : self.__current__ - 1]
         self.__add_token__(TokenType.STRING, value)
+
+    def __is_digit__(self, c: str) -> bool:
+        return c[0] >= "0" and c[0] <= "9"
+
+    def __number__(self) -> None:
+        while self.__is_digit__(self.__peek__()):
+            _ = self.__advance__()
+
+        if self.__peek__() == "." and self.__is_digit__(self.__peek_next__()):
+            _ = self.__advance__()
+
+            while self.__is_digit__(self.__peek__()):
+                _ = self.__advance__()
+
+        self.__add_token__(
+            TokenType.NUMBER, float(self.__source__[self.__start__ : self.__current__])
+        )
+
+    def __peek_next__(self) -> str:
+        if self.__current__ + 1 >= len(self.__source__):
+            return "\0"
+        return self.__source__[self.__current__ + 1]
