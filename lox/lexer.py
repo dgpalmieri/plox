@@ -10,6 +10,24 @@ class Lexer:
     __current__: int = 0
     __line__: int = 1
 
+    __keywords__: dict[str, TokenType] = {}
+    __keywords__["and"] = TokenType.AND
+    __keywords__["class"] = TokenType.CLASS
+    __keywords__["else"] = TokenType.ELSE
+    __keywords__["false"] = TokenType.FALSE
+    __keywords__["for"] = TokenType.FOR
+    __keywords__["fun"] = TokenType.FUN
+    __keywords__["if"] = TokenType.IF
+    __keywords__["nil"] = TokenType.NIL
+    __keywords__["or"] = TokenType.OR
+    __keywords__["print"] = TokenType.PRINT
+    __keywords__["return"] = TokenType.RETURN
+    __keywords__["super"] = TokenType.SUPER
+    __keywords__["this"] = TokenType.THIS
+    __keywords__["true"] = TokenType.TRUE
+    __keywords__["var"] = TokenType.VAR
+    __keywords__["while"] = TokenType.WHILE
+
     def __init__(self, source: str):
         self.__source__ = source
 
@@ -77,8 +95,18 @@ class Lexer:
         else:
             if self.__is_digit__(c):
                 self.__number__()
+            elif self.__is_alpha__(c):
+                self.__identifier__()
             else:
                 Lox.error(self.__line__, f"Unexpected character: {c}")
+
+    def __identifier__(self):
+        while self.__is_alpha_numeric__(self.__peek__()):
+            _ = self.__advance__()
+
+        text: str = self.__source__[self.__start__ : self.__current__]
+        text_type: TokenType = self.__keywords__.get(text, TokenType.IDENTIFIER)
+        self.__add_token__(text_type)
 
     def __advance__(self) -> str:
         if self.__current__ + 1 <= len(self.__source__):
@@ -139,3 +167,9 @@ class Lexer:
         if self.__current__ + 1 >= len(self.__source__):
             return "\0"
         return self.__source__[self.__current__ + 1]
+
+    def __is_alpha__(self, c: str) -> bool:
+        return (c >= "a" and c <= "z") or (c >= "A" and c <= "Z") or c == "_"
+
+    def __is_alpha_numeric__(self, c: str) -> bool:
+        return self.__is_alpha__(c) or self.__is_digit__(c)
